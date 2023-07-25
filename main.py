@@ -1,22 +1,26 @@
 from fastapi import FastAPI
-from typing import Union
-from pydantic import BaseModel
+import json
 
 app = FastAPI()
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
 
 @app.get('/')
 def read_root():
     return {'Hello': 'world!'}
 
 @app.get('/items/{item_id}')
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {'item_id': item_id, 'q': q}
+def read_item(item_id: int):
+    return (item_id * 2)
 
-@app.put('/itmes/{item_id}')
-def update_item(item_id: int, item: Item):
-    return{'item_name': item.name, 'item_id': item_id}
+@app.post('/items/')
+def update_item(item: dict):
+
+    if len(item) < 3:
+        FIELD_THE_USER_FORGOT_HERE = "salary" if ('salary' not in item.keys()) else "bonus" if ('bonus' not in item.keys()) else "taxes"
+        return f"3 fields expected (salary, bonus, taxes). You forgot: {FIELD_THE_USER_FORGOT_HERE}."
+    elif (str(item['salary']).isdigit() & 
+          str(item['bonus']).isdigit() &
+          str(item['taxes']).isdigit()) == False:
+        return 'expected numbers, got strings.'
+  
+    return (item['salary'] + item['bonus'] - item['taxes']) # salary + bonus - taxes
